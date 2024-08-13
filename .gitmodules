@@ -71,4 +71,4 @@
 [submodule "lib/pico-extras"]
 	path = lib/pico-extras
 	url = https://github.com/raspberrypi/pico-extras
-	branch = sdk-1.2.0
+	branch = sdk-1.5.1

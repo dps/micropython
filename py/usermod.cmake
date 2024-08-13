@@ -4,6 +4,12 @@ add_library(usermod INTERFACE)
 function(usermod_gather_sources SOURCES_VARNAME INCLUDE_DIRECTORIES_VARNAME INCLUDED_VARNAME LIB)
 
     message("Target ${LIB}...")
+    string(FIND "${LIB}" "::" pos)
+    if (NOT ${pos} EQUAL -1)
+        message(STATUS "Skipping target with '::' in its name: ${LIB}")
+        return()
+    endif()
+
 
     if (NOT ${LIB} IN_LIST ${INCLUDED_VARNAME})
         list(APPEND ${INCLUDED_VARNAME} ${LIB})

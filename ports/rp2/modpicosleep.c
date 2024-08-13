@@ -1,3 +1,5 @@
+// Credit to https://github.com/ghubcoder/micropython-pico-deepsleep
+
 #include "py/runtime.h"
 #include "pico/sleep.h"
 #include "pico/stdlib.h"
@@ -9,6 +11,8 @@
 #include "hardware/clocks.h"
 #include "hardware/rosc.h"
 #include "hardware/structs/scb.h"
+
+#define STATIC static
 
 static void sleep_callback(void)
 {

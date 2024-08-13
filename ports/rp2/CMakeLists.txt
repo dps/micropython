@@ -146,6 +146,7 @@ set(MICROPY_SOURCE_PORT
     machine_spi.c
     machine_timer.c
     main.c
+    modpicosleep.c
     modrp2.c
     mphalport.c
     mpnetworkport.c
@@ -176,6 +177,7 @@ set(MICROPY_SOURCE_QSTR
     ${MICROPY_PORT_DIR}/machine_timer.c
     ${MICROPY_PORT_DIR}/machine_uart.c
     ${MICROPY_PORT_DIR}/machine_wdt.c
+    ${MICROPY_PORT_DIR}/modpicosleep.c
     ${MICROPY_PORT_DIR}/modrp2.c
     ${MICROPY_PORT_DIR}/modos.c
     ${MICROPY_PORT_DIR}/rp2_flash.c
@@ -199,6 +201,8 @@ set(PICO_SDK_COMPONENTS
     hardware_pwm
     hardware_regs
     hardware_rtc
+    hardware_rosc
+    hardware_sleep
     hardware_spi
     hardware_structs
     hardware_sync
@@ -211,6 +215,7 @@ set(PICO_SDK_COMPONENTS
     pico_bootrom
     pico_multicore
     pico_platform
+    pico_runtime
     pico_stdio
     pico_stdlib
     pico_sync

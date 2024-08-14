@@ -19,6 +19,15 @@ static void sleep_callback(void)
     return;
 }
 
+void datetime_to_tm(const datetime_t *dt, struct tm *tm_time) {
+    tm_time->tm_year = dt->year - 1900;  // struct tm year is year since 1900
+    tm_time->tm_mon = dt->month - 1;     // struct tm month is 0-11
+    tm_time->tm_mday = dt->day;
+    tm_time->tm_hour = dt->hour;
+    tm_time->tm_min = dt->min;
+    tm_time->tm_sec = dt->sec;
+}
+
 static void rtc_sleep_seconds(uint32_t seconds_to_sleep)
 {
 
@@ -30,9 +39,11 @@ static void rtc_sleep_seconds(uint32_t seconds_to_sleep)
         return;
     }
 
+    struct tm tm_time;
     datetime_t now;
     rtc_get_datetime(&now);
-    time_t epoch = mktime(&now);
+    datetime_to_tm(&now, &tm_time);
+    time_t epoch = mktime(&tm_time);
     epoch += seconds_to_sleep;
 
     // int y = 2020, m = 6, d = 5, hour = 15, mins = 45, secs = 0;
@@ -91,6 +102,8 @@ STATIC mp_obj_t picosleep_pin(mp_obj_t pin_obj, mp_obj_t edge_obj, mp_obj_t high
 
     sleep_goto_dormant_until_pin(pin, edge, high);
     recover_from_sleep(scb_orig, clock0_orig, clock1_orig);
+
+    return mp_const_none;
 }
 
 STATIC mp_obj_t picosleep_seconds(mp_obj_t seconds_obj)

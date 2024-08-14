@@ -30,25 +30,32 @@ static void rtc_sleep_seconds(uint32_t seconds_to_sleep)
         return;
     }
 
-    int y = 2020, m = 6, d = 5, hour = 15, mins = 45, secs = 0;
-    struct tm t = {.tm_year = y - 1900,
-                   .tm_mon = m - 1,
-                   .tm_mday = d,
-                   .tm_hour = hour,
-                   .tm_min = mins,
-                   .tm_sec = secs};
+    datetime_t now;
+    rtc_get_datetime(&now);
+    time_t epoch = mktime(&now);
+    epoch += seconds_to_sleep;
 
-    t.tm_sec += seconds_to_sleep;
-    mktime(&t);
+    // int y = 2020, m = 6, d = 5, hour = 15, mins = 45, secs = 0;
+    // struct tm t = {.tm_year = y - 1900,
+    //                .tm_mon = m - 1,
+    //                .tm_mday = d,
+    //                .tm_hour = hour,
+    //                .tm_min = mins,
+    //                .tm_sec = secs};
+
+    // t.tm_sec += seconds_to_sleep;
+    // mktime(&t);
+
+    struct tm* t = gmtime(&epoch);
 
     datetime_t t_alarm = {
-        .year = t.tm_year + 1900,
-        .month = t.tm_mon + 1,
-        .day = t.tm_mday,
-        .dotw = t.tm_wday, // 0 is Sunday, so 5 is Friday
-        .hour = t.tm_hour,
-        .min = t.tm_min,
-        .sec = t.tm_sec};
+        .year = t->tm_year + 1900,
+        .month = t->tm_mon + 1,
+        .day = t->tm_mday,
+        .dotw = t->tm_wday, // 0 is Sunday, so 5 is Friday
+        .hour = t->tm_hour,
+        .min = t->tm_min,
+        .sec = t->tm_sec};
 
     sleep_goto_sleep_until(&t_alarm, &sleep_callback);
 }
@@ -71,6 +78,21 @@ void recover_from_sleep(uint scb_orig, uint clock0_orig, uint clock1_orig)
     return;
 }
 
+STATIC mp_obj_t picosleep_pin(mp_obj_t pin_obj, mp_obj_t edge_obj, mp_obj_t high_obj) {
+    mp_int_t pin = mp_obj_get_int(pin_obj);
+    bool edge = mp_obj_get_int(edge_obj) == 1;
+    bool high = mp_obj_get_int(high_obj) == 1;
+    
+    uint scb_orig = scb_hw->scr;
+    uint clock0_orig = clocks_hw->sleep_en0;
+    uint clock1_orig = clocks_hw->sleep_en1;
+
+    sleep_run_from_xosc();
+
+    sleep_goto_dormant_until_pin(pin, edge, high);
+    recover_from_sleep(scb_orig, clock0_orig, clock1_orig);
+}
+
 STATIC mp_obj_t picosleep_seconds(mp_obj_t seconds_obj)
 {
     mp_int_t seconds = mp_obj_get_int(seconds_obj);
@@ -80,31 +102,33 @@ STATIC mp_obj_t picosleep_seconds(mp_obj_t seconds_obj)
     uint clock0_orig = clocks_hw->sleep_en0;
     uint clock1_orig = clocks_hw->sleep_en1;
 
-    // crudely reset the clock each time
-    // to the value below
-    datetime_t t = {
-        .year = 2020,
-        .month = 06,
-        .day = 05,
-        .dotw = 5, // 0 is Sunday, so 5 is Friday
-        .hour = 15,
-        .min = 45,
-        .sec = 00};
+    // // crudely reset the clock each time
+    // // to the value below
+    // datetime_t t = {
+    //     .year = 2020,
+    //     .month = 06,
+    //     .day = 05,
+    //     .dotw = 5, // 0 is Sunday, so 5 is Friday
+    //     .hour = 15,
+    //     .min = 45,
+    //     .sec = 00};
 
-    // Start the Real time clock
-    rtc_init();
+    // // Start the Real time clock
+    // rtc_init();
     sleep_run_from_xosc();
-    rtc_set_datetime(&t);
+    // rtc_set_datetime(&t);
     rtc_sleep_seconds(seconds);
     recover_from_sleep(scb_orig, clock0_orig, clock1_orig);
 
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_1(picosleep_seconds_obj, picosleep_seconds);
+MP_DEFINE_CONST_FUN_OBJ_3(picosleep_pin_obj, picosleep_pin);
 
 STATIC const mp_rom_map_elem_t picosleep_module_globals_table[] = {
     {MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_picosleep)},
     {MP_ROM_QSTR(MP_QSTR_seconds), MP_ROM_PTR(&picosleep_seconds_obj)},
+    {MP_ROM_QSTR(MP_QSTR_pin), MP_ROM_PTR(&picosleep_pin_obj)}
 };
 STATIC MP_DEFINE_CONST_DICT(picosleep_module_globals, picosleep_module_globals_table);
 

@@ -60,10 +60,10 @@ static void rtc_sleep_seconds(uint32_t seconds_to_sleep)
     struct tm* t = gmtime(&epoch);
 
     datetime_t t_alarm = {
-        .year = t->tm_year + 1900,
+        .year = -1, //t->tm_year + 1900,
         .month = t->tm_mon + 1,
         .day = t->tm_mday,
-        .dotw = t->tm_wday, // 0 is Sunday, so 5 is Friday
+        .dotw = -1, //t->tm_wday, // 0 is Sunday, so 5 is Friday
         .hour = t->tm_hour,
         .min = t->tm_min,
         .sec = t->tm_sec};

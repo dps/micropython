@@ -98,7 +98,7 @@ STATIC mp_obj_t picosleep_pin(mp_obj_t pin_obj, mp_obj_t edge_obj, mp_obj_t high
     uint clock0_orig = clocks_hw->sleep_en0;
     uint clock1_orig = clocks_hw->sleep_en1;
 
-    sleep_run_from_xosc();
+    sleep_run_from_rosc();
 
     sleep_goto_dormant_until_pin(pin, edge, high);
     recover_from_sleep(scb_orig, clock0_orig, clock1_orig);

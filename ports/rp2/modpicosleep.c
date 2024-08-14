@@ -126,9 +126,10 @@ STATIC mp_obj_t picosleep_seconds(mp_obj_t seconds_obj)
     //     .min = 45,
     //     .sec = 00};
 
-    // // Start the Real time clock
-    // rtc_init();
+    
     sleep_run_from_xosc();
+    // // Start the Real time clock
+    rtc_init();
     // rtc_set_datetime(&t);
     rtc_sleep_seconds(seconds);
     recover_from_sleep(scb_orig, clock0_orig, clock1_orig);

@@ -84,7 +84,7 @@ void recover_from_sleep(uint scb_orig, uint clock0_orig, uint clock1_orig)
 
     // reset clocks
     clocks_init();
-    stdio_init_all();
+    // stdio_init_all();
 
     return;
 }
@@ -109,7 +109,7 @@ STATIC mp_obj_t picosleep_pin(mp_obj_t pin_obj, mp_obj_t edge_obj, mp_obj_t high
 STATIC mp_obj_t picosleep_seconds(mp_obj_t seconds_obj)
 {
     mp_int_t seconds = mp_obj_get_int(seconds_obj);
-    stdio_init_all();
+    //stdio_init_all();
     // save values for later
     uint scb_orig = scb_hw->scr;
     uint clock0_orig = clocks_hw->sleep_en0;
@@ -127,9 +127,12 @@ STATIC mp_obj_t picosleep_seconds(mp_obj_t seconds_obj)
     //     .sec = 00};
 
     
-    sleep_run_from_xosc();
+    //sleep_run_from_xosc();
+    sleep_run_from_rosc();
     // // Start the Real time clock
-    rtc_init();
+    if (!rtc_running()) {
+        rtc_init();
+    }
     // rtc_set_datetime(&t);
     rtc_sleep_seconds(seconds);
     recover_from_sleep(scb_orig, clock0_orig, clock1_orig);
